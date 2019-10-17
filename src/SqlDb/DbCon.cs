@@ -18,7 +18,7 @@ namespace SqlDb
             _connectionString = connectionString;
         }
 
-        public async Task Execute(ICommand command)
+        public async Task ExecuteAsync(ICommand command)
         {
             using (DbConnection connection = new SqlConnection(_connectionString))
             using (var cmd = connection.CreateCommand())

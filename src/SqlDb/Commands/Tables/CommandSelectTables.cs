@@ -25,8 +25,15 @@ namespace SqlDb.Commands.Tables
             try
             {
                 command.CommandText = _request.Sql();
-                Data = command.Connection.Query<string>(_request.Sql()).ToArray();
-                IsSuccessful = true;
+                var result = command.Connection.Query<string>(_request.Sql()).ToArray();
+                if (result.Length > 0)
+                {
+                    Data = result;
+                    IsSuccessful = true;
+                }
+
+                Error = "Tables not found";
+
             }
             catch (Exception)
             {

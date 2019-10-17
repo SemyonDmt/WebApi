@@ -24,7 +24,15 @@ namespace SqlDb.Requests.Tables
         private string BuildSql()
         {
             return
-                "SELECT COLUMN_NAME AS name, DATA_TYPE AS type, IIF(IS_NULLABLE='YES', 'TRUE', 'FALSE') AS isNull, CHARACTER_MAXIMUM_LENGTH AS size FROM INFORMATION_SCHEMA.COLUMNS WHERE [table_name]=@tblName;";
+                $@"SELECT col.name As Name,
+                          col.is_identity As IsKey,
+                          types.name As ColumnType,
+                          col.is_nullable As IsNull,
+                          iif(types.name  = 'nvarchar', CAST(col.max_length / 2 AS varchar(5)), null) AS Size
+                  FROM sys.tables tbl
+                          LEFT JOIN sys.columns col ON tbl.object_id = col.object_id
+                          LEFT JOIN sys.types types ON col.user_type_id = types.user_type_id
+                  WHERE tbl.name='{_tblName}'";
         }
 
         private SqlParameter[] BuildParameters()
