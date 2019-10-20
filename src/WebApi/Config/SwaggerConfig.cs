@@ -1,6 +1,6 @@
-namespace WebApi.Options
+namespace WebApi.Config
 {
-    public class SwaggerOptions
+    public class SwaggerConfig
     {
         public string JsonRoute { get; set; }
 

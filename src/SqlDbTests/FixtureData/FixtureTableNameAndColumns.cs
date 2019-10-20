@@ -9,12 +9,12 @@ namespace SqlDbTests.FixtureData
         
         public static string BuildTableName()
         {
-            return Fixture.Create<string>();
+            return "Orders";
         }
 
-        public static (string colName, object value)[] BuildColumns()
+        public static string BuildColumns()
         {
-            return Fixture.CreateMany<(string colName, object value)>().ToArray();
+            return Fixture.Create<string>();
         }
     }
 }

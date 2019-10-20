@@ -5,7 +5,7 @@ namespace SqlDb.Requests.Tables
 {
     internal class RequestSelectTables
     {
-        private const string _sql = "SELECT name AS tableName FROM sys.Tables WHERE is_ms_shipped = 'FALSE'";
+        private const string _sql = "SELECT name AS tableName FROM sys.Tables WHERE is_ms_shipped = 'FALSE' FOR JSON AUTO";
 
         public string Sql() => _sql;
     }

@@ -1,28 +1,32 @@
+using System;
 using System.Data;
 using System.Data.SqlClient;
-using System.Runtime.CompilerServices;
 using FluentValidation;
 using SqlDb.Validators;
 
-[assembly: InternalsVisibleTo("SqlDbTests")]
-
 namespace SqlDb.Requests.Rows
 {
-    internal class RequestDelete
+    public class RequestUpdateFromJson
     {
         private readonly string _tblName;
+        private readonly string _json;
         private readonly int _id;
+
         private readonly string _sql;
         private readonly SqlParameter[] _parameters;
 
-        public RequestDelete(string tableName, int id)
+        public RequestUpdateFromJson(string tableName, int id, string json)
         {
             new TableNameValidator().ValidateAndThrow(tableName);
 
+            if (string.IsNullOrEmpty(json))
+                throw new ArgumentNullException(nameof(tableName));
+
             _tblName = tableName;
+            _json = json;
             _id = id;
             _sql = BuildSql();
-            _parameters = BuildParameterId();
+            _parameters = BuildParametersInsert();
         }
 
         public string Sql() => _sql;
@@ -30,18 +34,25 @@ namespace SqlDb.Requests.Rows
 
         private string BuildSql()
         {
-            return $"Delete{_tblName}";
+            return $@"Update{_tblName}FromJson";
         }
 
-        private SqlParameter[] BuildParameterId()
+        private SqlParameter[] BuildParametersInsert()
         {
             return new[]
             {
                 new SqlParameter()
                 {
                     ParameterName = $"@Id",
+                    SqlDbType = SqlDbType.Int,
                     Direction = ParameterDirection.Input,
                     Value = _id
+                },
+                new SqlParameter
+                {
+                    ParameterName = "@UpdateJson",
+                    Direction = ParameterDirection.Input,
+                    Value = _json
                 }
             };
         }

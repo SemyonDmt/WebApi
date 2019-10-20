@@ -8,21 +8,22 @@ using SqlDb.Validators;
 
 namespace SqlDb.Requests.Rows
 {
-    internal class RequestDelete
+    internal class RequestSelectById
     {
         private readonly string _tblName;
         private readonly int _id;
         private readonly string _sql;
         private readonly SqlParameter[] _parameters;
 
-        public RequestDelete(string tableName, int id)
+        public RequestSelectById(string tableName, int id)
         {
             new TableNameValidator().ValidateAndThrow(tableName);
 
             _tblName = tableName;
             _id = id;
+
             _sql = BuildSql();
-            _parameters = BuildParameterId();
+            _parameters = BuildParametersInsert();
         }
 
         public string Sql() => _sql;
@@ -30,16 +31,17 @@ namespace SqlDb.Requests.Rows
 
         private string BuildSql()
         {
-            return $"Delete{_tblName}";
+            return
+                $"SELECT * FROM {_tblName} WHERE {_tblName}Id=@id FOR JSON AUTO, WITHOUT_ARRAY_WRAPPER, INCLUDE_NULL_VALUES";
         }
 
-        private SqlParameter[] BuildParameterId()
+        private SqlParameter[] BuildParametersInsert()
         {
             return new[]
             {
-                new SqlParameter()
+                new SqlParameter
                 {
-                    ParameterName = $"@Id",
+                    ParameterName = "@Id",
                     Direction = ParameterDirection.Input,
                     Value = _id
                 }

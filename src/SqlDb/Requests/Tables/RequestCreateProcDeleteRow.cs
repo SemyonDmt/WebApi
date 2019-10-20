@@ -1,16 +1,14 @@
-using System.Runtime.CompilerServices;
 using FluentValidation;
 using SqlDb.Validators;
 
-[assembly: InternalsVisibleTo("SqlDbTests")]
 namespace SqlDb.Requests.Tables
 {
-    internal class RequestPublishTable
+    public class RequestCreateProcDeleteRow
     {
         private readonly string _tableName;
         private readonly string _sql;
 
-        public RequestPublishTable(string tableName)
+        public RequestCreateProcDeleteRow(string tableName)
         {
             new TableNameValidator().ValidateAndThrow(tableName);
 
@@ -22,7 +20,11 @@ namespace SqlDb.Requests.Tables
 
         private string BuildSqlRequestCreateTable()
         {
-            return $"DROP TABLE IF EXISTS {_tableName}Publish; SELECT * INTO {_tableName}Publish FROM  {_tableName};";
+            return
+$@"CREATE PROCEDURE Delete{_tableName}(@Id int)
+AS BEGIN
+DELETE FROM {_tableName} WHERE {_tableName}Id=@Id;
+END";
         }
     }
 }

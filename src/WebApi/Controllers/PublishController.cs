@@ -6,7 +6,7 @@ using SqlDb.Commands.Tables;
 
 namespace WebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Table/{name}/[controller]")]
     [ApiController]
     public class PublishController : ControllerBase
     {
@@ -17,15 +17,14 @@ namespace WebApi.Controllers
             _dbCon = dbCon ?? throw new ArgumentNullException(nameof(dbCon));
         }
 
-        // POST
-        [HttpPost("Table/{name}")]
+        [HttpPost]
         public async Task<ActionResult> Publish(string name)
         {
             var command = new CommandPublishTable(name);
             await _dbCon.ExecuteAsync(command);
 
             if (command.IsSuccessful)
-                return Created($"api/Table/{name}", command.Data);
+                return Created($"api/Table/{name}Publish", command.Data);
 
             return NotFound(command.Error);
         }

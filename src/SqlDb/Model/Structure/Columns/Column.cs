@@ -1,10 +1,10 @@
 using System;
 
-namespace SqlDb.Structure.Columns
+namespace SqlDb.Model.Structure.Columns
 {
     public abstract class Column
     {
-        protected readonly string Name;
+        internal readonly string Name;
         private readonly bool _isNull;
 
         protected Column(string name, bool isNull)
@@ -15,5 +15,6 @@ namespace SqlDb.Structure.Columns
 
         protected string SqlCanBeNull() => _isNull ? "NULL" : "NOT NULL";
         public abstract string SqlRequestCreateColumn();
+        public abstract string SqlRequestInsertColumn();
     }
 }

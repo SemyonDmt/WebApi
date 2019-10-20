@@ -1,4 +1,4 @@
-namespace SqlDb.Structure.Columns
+namespace SqlDb.Model.Structure.Columns
 {
     public class ColumnBoolean : Column
     {
@@ -9,6 +9,11 @@ namespace SqlDb.Structure.Columns
         public override string SqlRequestCreateColumn()
         {
             return $"{Name} bit {SqlCanBeNull()}";
+        }
+
+        public override string SqlRequestInsertColumn()
+        {
+            return $"{Name} bit";
         }
     }
 }

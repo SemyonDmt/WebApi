@@ -1,26 +1,24 @@
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using FluentValidation;
 using SqlDb.Model.Structure.Columns;
 using SqlDb.Validators;
 
-[assembly: InternalsVisibleTo("SqlDbTests")]
-
 namespace SqlDb.Requests.Tables
 {
-    internal class RequestCreateTable
+    public class RequestCreateProcUpdateRow
     {
         private readonly string _tableName;
         private readonly Column[] _cols;
         private readonly string _sql;
 
-        public RequestCreateTable(string tableName, Column[] columns)
+        public RequestCreateProcUpdateRow(string tableName, Column[] columns)
         {
             new TableNameValidator().ValidateAndThrow(tableName);
             new ColumnArrayValidator().ValidateAndThrow(columns);
 
             _tableName = tableName;
+            _cols = columns;
             _cols = new Column[columns.Length + 1];
 
             for (var i = 0; i < columns.Length; i++)
@@ -34,8 +32,21 @@ namespace SqlDb.Requests.Tables
 
         private string BuildSqlRequestCreateTable()
         {
-            var sbCols = new StringBuilder().Append(string.Join(", ", _cols.Select(s => s.SqlRequestCreateColumn())));
-            return $@"CREATE TABLE {_tableName} ({sbCols})";
+            var col = _cols.Where(w => !(w is ColumnId));
+            var sbCols = new StringBuilder().Append(string.Join(", ", col.Select(s => $"{s.Name} = json.{s.Name}")));
+            var sbCols2 = new StringBuilder().Append(string.Join(", ", col.Select(s => s.SqlRequestInsertColumn())));
+
+            return
+$@"CREATE PROCEDURE Update{_tableName}FromJson(@Id int, @UpdateJson NVARCHAR(MAX))
+AS BEGIN
+
+UPDATE {_tableName} SET {sbCols}
+FROM OPENJSON(@UpdateJson)
+              WITH ({sbCols2}) as json
+WHERE {_tableName}Id = @Id;
+
+SELECT * FROM {_tableName} WHERE {_tableName}Id=@Id FOR JSON AUTO, WITHOUT_ARRAY_WRAPPER, INCLUDE_NULL_VALUES
+END";
         }
     }
 }

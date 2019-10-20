@@ -6,16 +6,16 @@ using SqlDb.Requests.Rows;
 
 namespace SqlDb.Commands.Rows
 {
-    public class CommandSelectRows : ICommand
+    public class CommandCustomSqlQuery : ICommand
     {
-        private readonly RequestSelect _request;
+        private readonly RequestCustomSqlQuery _request;
         public string Data { get; private set; }
         public bool IsSuccessful { get; private set; }
         public string Error { get; private set; }
 
-        public CommandSelectRows(string tableName, (string colName, object value)[] cols)
+        public CommandCustomSqlQuery(string tableName, string select, string order, string filter, int page, int size)
         {
-            _request = new RequestSelect(tableName, cols);
+            _request = new RequestCustomSqlQuery(tableName, select, order, filter, page, size, RequestFormat.Json);
         }
 
         public async Task ExecuteAsync(DbCommand command)
@@ -24,7 +24,9 @@ namespace SqlDb.Commands.Rows
             {
                 command.CommandText = _request.Sql();
                 command.Parameters.AddRange(_request.Parameters());
-                Data = (string) await command.ExecuteScalarAsync(CancellationToken.None);
+                var data = (string) await command.ExecuteScalarAsync(CancellationToken.None);
+
+                Data = data ?? string.Empty;
                 IsSuccessful = true;
             }
             catch (Exception)

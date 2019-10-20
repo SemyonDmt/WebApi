@@ -1,8 +1,7 @@
 using System;
 using System.Data.Common;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using SqlDb.Requests.Tables;
 
 namespace SqlDb.Commands.Tables
@@ -10,7 +9,7 @@ namespace SqlDb.Commands.Tables
     public class CommandSelectTables : ICommand
     {
         private readonly RequestSelectTables _request;
-        public string[] Data { get; private set; }
+        public string Data { get; private set; }
 
         public bool IsSuccessful { get; private set; }
         public string Error { get; private set; }
@@ -25,15 +24,10 @@ namespace SqlDb.Commands.Tables
             try
             {
                 command.CommandText = _request.Sql();
-                var result = command.Connection.Query<string>(_request.Sql()).ToArray();
-                if (result.Length > 0)
-                {
-                    Data = result;
-                    IsSuccessful = true;
-                }
+                var data = (string) await command.ExecuteScalarAsync(CancellationToken.None);
 
-                Error = "Tables not found";
-
+                Data = data ?? string.Empty;
+                IsSuccessful = true;
             }
             catch (Exception)
             {
